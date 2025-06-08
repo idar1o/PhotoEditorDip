@@ -51,6 +51,7 @@ git clone https://github.com/idar1o/PhotoEditorDip.git
 Открой проект в Android Studio.
 
 Убедись, что установлены последние версии Android SDK и Gradle.
+
 ⚙️ Установка OpenCV SDK
 Для корректной работы проекта необходимо установить OpenCV SDK вручную:
 
