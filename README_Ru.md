@@ -51,6 +51,44 @@ git clone https://github.com/idar1o/PhotoEditorDip.git
 Открой проект в Android Studio.
 
 Убедись, что установлены последние версии Android SDK и Gradle.
+⚙️ Установка OpenCV SDK
+Для корректной работы проекта необходимо установить OpenCV SDK вручную:
+
+📥 1. Скачать OpenCV
+Перейдите на официальный сайт:
+👉 https://opencv.org/releases/
+
+Скачайте версию OpenCV для Android (например, OpenCV-4.5.5-android-sdk.zip).
+
+📂 2. Распаковать SDK
+Распакуйте скачанный архив в удобное место на диске, например:
+
+javascript
+Копировать
+Редактировать
+C:/OpenCV/OpenCV-android-sdk
+🔧 3. Указать путь в CMakeLists.txt
+В CMakeLists.txt (или где ты настраиваешь CMake), укажи путь к SDK, например:
+
+cmake
+Копировать
+Редактировать
+set(OpenCV_DIR C:/OpenCV/OpenCV-android-sdk/sdk/native/jni)
+find_package(OpenCV REQUIRED)
+target_link_libraries(native-lib ${OpenCV_LIBS})
+📌 Замените путь C:/OpenCV/OpenCV-android-sdk/ на ваш актуальный путь.
+
+🐞 4. Возможные ошибки
+Если Android Studio не может найти OpenCV SDK:
+
+Убедитесь, что путь указан правильно (без опечаток и пробелов).
+
+Убедитесь, что вы используете CMake для сборки native-кода.
+
+Проверьте, что native-lib ссылается на OpenCV правильно.
+
+🛑 Важно
+OpenCV SDK не включён в репозиторий, так как он слишком большой (~hundreds of MB) и не должен храниться в Git. Поэтому каждый разработчик должен установить его самостоятельно.
 
 Нажми Run или используй Shift + F10.
 
