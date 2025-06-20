@@ -1,16 +1,16 @@
 package com.example.photoeditordip.core.data.network
 
 object ApiConstants {
-    const val BASE_URL = "https://dbc4-77-235-25-202.ngrok-free.app/"
+    const val BASE_URL = "https://07a6-77-235-25-202.ngrok-free.app/"
 
     const val PROCESS = "process/"
     const val BLUR = "blur/"
-    const val GRAYSCALE = "grayscale/"
+    const val GRAY_SCALE = "grayscale/"
     const val INVERT_COLORS = "invert_colors/"
     const val BRIGHTNESS = "brightness/"
     const val CONTRAST = "contrast/"
     const val PENCIL = "pencil/"
-    const val WATERCOLOR = "watercolor/"
+    const val WATER_COLOR = "watercolor/"
     const val OIL_PAINTING = "oil_painting/"
     const val PENCIL_COLOR = "pencil_color/"
     const val CARTOONIFY = "cartoonify/"

@@ -1,73 +1,23 @@
 package com.example.photoeditordip.navigation
 
 import android.net.Uri
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LocalContentColor
-import androidx.compose.material3.LocalTextStyle
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.BlurredEdgeTreatment
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.blur
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.scale
-import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.RoundRect
-import androidx.compose.ui.geometry.toRect
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.PathEffect
-import androidx.compose.ui.graphics.PathMeasure
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.graphics.vector.Path
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -78,6 +28,7 @@ import com.example.bottombar.AnimatedBottomBar
 import com.example.bottombar.components.BottomBarItem
 import com.example.bottombar.model.IndicatorStyle
 import com.example.photoeditordip.editordip.presentation.ai_tools.AIToolboxScreen
+import com.example.photoeditordip.editordip.presentation.preview.PreviewScreen
 import com.example.photoeditordip.presentation.editing.EditScreen
 import com.example.photoeditordip.presentation.home.HomeScreen
 
@@ -86,16 +37,11 @@ sealed class Screen(val route: String) {
     object Home : Screen("home")
     object AIToolbox : Screen("ai_toolbox")
     object Edit : Screen("edit_screen/{imageUri}")
+    class EditParam(imageUri: String) : Screen("edit_screen/$imageUri")
 
-    // Helper method to create routes with arguments
-    fun createRoute(vararg args: String): String {
-        return buildString {
-            append(route)
-            args.forEach { arg ->
-                route.replace("{$arg}", arg)
-            }
-        }
-    }
+    object Preview : Screen("preview_screen/{imageUri}")
+
+    class PreviewParam(imageUri: String) : Screen("preview_screen/${Uri.encode(imageUri)}")
 }
 
 @Composable
@@ -170,7 +116,7 @@ fun AppNavigation() {
                 HomeScreen(navController)
             }
             composable(Screen.AIToolbox.route) {
-                AIToolboxScreen()
+                AIToolboxScreen(navController)
             }
             composable(
                 route = Screen.Edit.route,
@@ -182,62 +128,30 @@ fun AppNavigation() {
                 val imageUri = imageUriString.takeIf { it.isNotEmpty() }?.let { Uri.parse(it) }
                 EditScreen(navController, imageUri)
             }
+
+            composable(
+                route = "preview_screen/{imageUri}",
+                arguments = listOf(navArgument("imageUri") {
+                    type = NavType.StringType
+                })
+            ) { backStackEntry ->
+                val encodedUri = backStackEntry.arguments?.getString("imageUri")
+                val decodedUri = encodedUri?.let { Uri.parse(Uri.decode(it)) }
+                PreviewScreen(navController, decodedUri)
+            }
+
+
         }
     }
 }
 
-@Composable
-fun GlassmorphicBottomNavigation(navController: NavController) {
-    var selectedItem by remember { mutableIntStateOf(0) }
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute = navBackStackEntry?.destination?.route
-
-}
 
 
 sealed class BottomBarTab(val title: String, val icon: ImageVector, val route: String) {
-    object Home : BottomBarTab("Home", Icons.Filled.Home, Screen.Home.route)
+    object Home : BottomBarTab(title = "Home", Icons.Filled.Home, Screen.Home.route)
     object AIToolbox : BottomBarTab("ToolBox", Icons.Filled.Settings, Screen.AIToolbox.route)
 }
 
-@Composable
-fun TabNavigationBar(navController: NavController) {
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute = navBackStackEntry?.destination?.route
-    val tabIndex = when (currentRoute) {
-        Screen.Home.route -> 0
-        Screen.AIToolbox.route -> 1
-        else -> 0
-    }
-
-    TabRow(
-        selectedTabIndex = tabIndex,
-        modifier = Modifier.height(48.dp)
-    ) {
-        Tab(
-            selected = tabIndex == 0,
-            onClick = {
-                if (currentRoute != Screen.Home.route) {
-                    navController.navigate(Screen.Home.route) {
-                        popUpTo(Screen.Home.route) { inclusive = false }
-                    }
-                }
-            },
-            text = { Text("Home") }
-        )
-        Tab(
-            selected = tabIndex == 1,
-            onClick = {
-                if (currentRoute != Screen.AIToolbox.route) {
-                    navController.navigate(Screen.AIToolbox.route) {
-                        popUpTo(Screen.Home.route) { inclusive = false }
-                    }
-                }
-            },
-            text = { Text("AI Toolbox") }
-        )
-    }
-}
 
 @Composable
 fun BottomNavigationBar(navController: NavController) {

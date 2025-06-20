@@ -7,7 +7,7 @@ import javax.inject.Inject
 class ApplyBlurBackgroundUseCase @Inject constructor(
     private val repository: ImageRepository
 ) {
-    suspend operator fun invoke(file: File): Result<String> {
-        return repository.applyBlurBackgroundEffect(file)
+    suspend operator fun invoke(file: File, blurIntensity: Int): Result<String> {
+        return repository.applyBlurBackgroundEffect(file, blurIntensity)
     }
 }

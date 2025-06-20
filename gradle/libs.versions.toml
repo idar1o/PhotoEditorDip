@@ -13,6 +13,7 @@ navigationCompose = "2.8.7"
 hilt = "2.55"
 hilt-navigation = "1.2.0"
 retrofit-version = "2.9.0"
+appcompatResources = "1.7.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -41,6 +42,7 @@ hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-com
 retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit-version" }
 retrofit-gson-converter = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "retrofit-version" }
 retrofit-scalars-converter = { group = "com.squareup.retrofit2", name = "converter-scalars", version.ref = "retrofit-version" }
+androidx-appcompat-resources = { group = "androidx.appcompat", name = "appcompat-resources", version.ref = "appcompatResources" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

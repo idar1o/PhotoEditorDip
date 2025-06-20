@@ -58,6 +58,7 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.androidx.navigation.compose)
     implementation(project(":sdk"))
+    implementation(libs.androidx.appcompat.resources)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -77,9 +78,11 @@ dependencies {
     implementation(libs.retrofit.gson.converter)
     implementation(libs.retrofit.scalars.converter)
     implementation ("com.canopas.compose-animated-navigationbar:bottombar:1.0.1")
-
+    implementation ("androidx.compose.material:material-icons-extended:1.7.7")
+    implementation ("com.google.code.gson:gson:2.13.1")
     // Coil for image loading
     implementation(libs.coil.compose)
+    implementation("com.github.CanHub:Android-Image-Cropper:4.0.0")
 }
 kapt {
     correctErrorTypes = true
