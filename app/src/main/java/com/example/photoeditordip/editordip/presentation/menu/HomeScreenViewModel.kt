@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.ContentUris
 import android.content.Context
 import android.graphics.Bitmap
+import android.net.Uri
 import android.provider.MediaStore
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -18,34 +19,29 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-
 @HiltViewModel
 class HomeScreenViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val getAllPresetsUseCase: GetAllPresetsUseCase
 ) : ViewModel() {
+
     private val _uiState = MutableStateFlow<HomeScreenState>(HomeScreenState.Idle)
-    val uiState = _uiState.asStateFlow()
+    val uiState: StateFlow<HomeScreenState> = _uiState.asStateFlow()
+
     private val _presets = MutableStateFlow<List<Preset>>(emptyList())
     val presets: StateFlow<List<Preset>> = _presets.asStateFlow()
 
     fun loadPresets() {
         viewModelScope.launch(Dispatchers.IO) {
             getAllPresetsUseCase().fold(
-                onSuccess = { presets ->
-                    _presets.value = presets
-                },
-                onFailure = { error ->
-                    error.printStackTrace()
-                }
+                onSuccess = { _presets.value = it.reversed() },
+                onFailure = { it.printStackTrace() }
             )
         }
     }
 
-
     fun loadUserImages() {
         viewModelScope.launch(Dispatchers.IO) {
-            _uiState.value = HomeScreenState.Loading
             try {
                 val images = getImagesFromEditorDipFolder(context)
                 _uiState.value = HomeScreenState.Result(images)
@@ -55,8 +51,8 @@ class HomeScreenViewModel @Inject constructor(
         }
     }
 
-    private fun getImagesFromEditorDipFolder(context: Context): List<Bitmap> {
-        val imageBitmaps = mutableListOf<Bitmap>()
+    private fun getImagesFromEditorDipFolder(context: Context): List<Pair<Uri, Bitmap>> {
+        val imageList = mutableListOf<Pair<Uri, Bitmap>>()
         val collection = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
 
         val projection = arrayOf(
@@ -66,7 +62,6 @@ class HomeScreenViewModel @Inject constructor(
 
         val selection = "${MediaStore.Images.Media.RELATIVE_PATH} LIKE ?"
         val selectionArgs = arrayOf("%Pictures/EditorDip%")
-
         val sortOrder = "${MediaStore.Images.Media.DATE_ADDED} DESC"
 
         context.contentResolver.query(
@@ -80,27 +75,22 @@ class HomeScreenViewModel @Inject constructor(
 
             while (cursor.moveToNext()) {
                 val id = cursor.getLong(idColumn)
-                val contentUri = ContentUris.withAppendedId(
-                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                    id
-                )
+                val uri = ContentUris.withAppendedId(collection, id)
                 try {
-                    val bitmap = MediaStore.Images.Media.getBitmap(context.contentResolver, contentUri)
-                    imageBitmaps.add(bitmap)
+                    val bitmap = MediaStore.Images.Media.getBitmap(context.contentResolver, uri)
+                    imageList.add(uri to bitmap)
                 } catch (e: Exception) {
-                    // Пропускаем битые или слишком тяжёлые файлы
                     e.printStackTrace()
                 }
             }
         }
 
-        return imageBitmaps
+        return imageList
     }
-
 }
 sealed class HomeScreenState {
     object Idle : HomeScreenState()
     object Loading : HomeScreenState()
-    data class Result(val userImages: List<Bitmap>) : HomeScreenState()
+    data class Result(val userImages: List<Pair<Uri, Bitmap>>) : HomeScreenState()
     data class Error(val message: String) : HomeScreenState()
 }

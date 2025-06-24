@@ -11,6 +11,16 @@ import androidx.lifecycle.viewModelScope
 import com.example.photoeditordip.editordip.domain.usecases.ai_effects.ApplyBlurUseCase
 import com.example.photoeditordip.editordip.domain.models.EffectData
 import com.example.photoeditordip.editordip.domain.models.Preset
+import com.example.photoeditordip.editordip.domain.models.effects.BWNegativeEffectParams
+import com.example.photoeditordip.editordip.domain.models.effects.BlurEffectParams
+import com.example.photoeditordip.editordip.domain.models.effects.BrightnessEffectParams
+import com.example.photoeditordip.editordip.domain.models.effects.CannyEffectParams
+import com.example.photoeditordip.editordip.domain.models.effects.CartoonifyParams
+import com.example.photoeditordip.editordip.domain.models.effects.ClaheEffectParams
+import com.example.photoeditordip.editordip.domain.models.effects.ContoursParams
+import com.example.photoeditordip.editordip.domain.models.effects.ContrastEffectParams
+import com.example.photoeditordip.editordip.domain.models.effects.EnhanceDetailsParams
+import com.example.photoeditordip.editordip.domain.models.effects.EqualizeExposureParams
 import com.example.photoeditordip.editordip.domain.usecases.ai_effects.ApplyBlurBackgroundUseCase
 import com.example.photoeditordip.editordip.domain.usecases.ai_effects.ApplyBrightnessEffectUseCase
 import com.example.photoeditordip.editordip.domain.usecases.ai_effects.ApplyBWNegativeEffectUseCase
@@ -40,8 +50,7 @@ import com.example.photoeditordip.editordip.domain.usecases.ai_effects.ApplyTint
 import com.example.photoeditordip.editordip.domain.usecases.ai_effects.ApplyVignetteEffectUseCase
 import com.example.photoeditordip.editordip.domain.usecases.ai_effects.ApplyWarmColdUseCase
 import com.example.photoeditordip.editordip.domain.usecases.ai_effects.ApplyWaterColorUseCase
-import com.example.photoeditordip.editordip.domain.usecases.ai_effects.ApplyInvertColorsUseCase
-import com.example.photoeditordip.editordip.domain.usecases.ai_effects.ContrastEffectParams
+import com.example.photoeditordip.editordip.domain.usecases.ai_effects.*
 import com.example.photoeditordip.editordip.domain.usecases.presets.SavePresetUseCase
 
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -540,7 +549,7 @@ class EditViewModel @Inject constructor(
 
             try {
                 Log.d("EditViewModel", "Calling applyBackgroundBlur...")
-                val result = applyBlurBackgroundUseCase(file, blurIntensity)
+                val result = applyBlurBackgroundUseCase(BlurEffectParams(file, blurIntensity))
                 Log.d("EditViewModel", "UseCase completed, processing result...")
 
                 result.fold(
@@ -608,7 +617,7 @@ class EditViewModel @Inject constructor(
             _uiState.value = EditScreenState.Loading
 
             try {
-                val result = applyCartoonifyUseCase(file)
+                val result = applyCartoonifyUseCase(CartoonifyParams( file))
                 result.fold(
                     onSuccess = { base64String ->
                         val bitmap = decodeBase64ToBitmap(base64String)
@@ -748,7 +757,7 @@ class EditViewModel @Inject constructor(
             _uiState.value = EditScreenState.Loading
 
             try {
-                val result = applyBrightnessEffectUseCase(file, brightness)
+                val result = applyBrightnessEffectUseCase(BrightnessEffectParams(file, brightness))
                 result.fold(
                     onSuccess = { base64String ->
                         val bitmap = decodeBase64ToBitmap(base64String)
@@ -916,7 +925,7 @@ class EditViewModel @Inject constructor(
             _uiState.value = EditScreenState.Loading
 
             try {
-                val result = applyBWNegativeEffectUseCase(file)
+                val result = applyBWNegativeEffectUseCase(BWNegativeEffectParams(file))
                 result.fold(
                     onSuccess = { base64String ->
                         val bitmap = decodeBase64ToBitmap(base64String)
@@ -972,7 +981,7 @@ class EditViewModel @Inject constructor(
             _uiState.value = EditScreenState.Loading
 
             try {
-                val result = applyCannyEffectUseCase(file, threshold1, threshold2)
+                val result = applyCannyEffectUseCase(CannyEffectParams(file, threshold1, threshold2))
                 result.fold(
                     onSuccess = { base64String ->
                         val bitmap = decodeBase64ToBitmap(base64String)
@@ -1000,7 +1009,7 @@ class EditViewModel @Inject constructor(
             _uiState.value = EditScreenState.Loading
 
             try {
-                val result = applyClaheEffectUseCase(file, clipLimit)
+                val result = applyClaheEffectUseCase(ClaheEffectParams(file, clipLimit))
                 result.fold(
                     onSuccess = { base64String ->
                         val bitmap = decodeBase64ToBitmap(base64String)
@@ -1028,7 +1037,7 @@ class EditViewModel @Inject constructor(
             _uiState.value = EditScreenState.Loading
 
             try {
-                val result = applyContoursEffectUseCase(file)
+                val result = applyContoursEffectUseCase(ContoursParams(file))
                 result.fold(
                     onSuccess = { base64String ->
                         val bitmap = decodeBase64ToBitmap(base64String)
@@ -1056,7 +1065,7 @@ class EditViewModel @Inject constructor(
             _uiState.value = EditScreenState.Loading
 
             try {
-                val result = applyEnhanceDetailsEffectUseCase(file)
+                val result = applyEnhanceDetailsEffectUseCase(EnhanceDetailsParams(file))
                 result.fold(
                     onSuccess = { base64String ->
                         val bitmap = decodeBase64ToBitmap(base64String)
@@ -1084,7 +1093,7 @@ class EditViewModel @Inject constructor(
             _uiState.value = EditScreenState.Loading
 
             try {
-                val result = applyEqualizeExposureEffectUseCase(file)
+                val result = applyEqualizeExposureEffectUseCase(EqualizeExposureParams(file))
                 result.fold(
                     onSuccess = { base64String ->
                         val bitmap = decodeBase64ToBitmap(base64String)

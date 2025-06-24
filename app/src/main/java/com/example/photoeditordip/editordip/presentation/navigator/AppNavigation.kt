@@ -36,8 +36,11 @@ import com.example.photoeditordip.presentation.home.HomeScreen
 sealed class Screen(val route: String) {
     object Home : Screen("home")
     object AIToolbox : Screen("ai_toolbox")
-    object Edit : Screen("edit_screen/{imageUri}")
-    class EditParam(imageUri: String) : Screen("edit_screen/$imageUri")
+    object Edit : Screen("edit_screen?imageUri={imageUri}&aiTool={aiTool}&origin={origin}")
+
+    class EditParam(imageUri: String, aiTool: String? = null, origin: String = "home") :
+        Screen("edit_screen?imageUri=${Uri.encode(imageUri)}&aiTool=${Uri.encode(aiTool ?: "")}&origin=$origin")
+
 
     object Preview : Screen("preview_screen/{imageUri}")
 
@@ -120,14 +123,26 @@ fun AppNavigation() {
             }
             composable(
                 route = Screen.Edit.route,
-                arguments = listOf(navArgument("imageUri") {
-                    type = NavType.StringType
-                })
+                arguments = listOf(
+                    navArgument("imageUri") { type = NavType.StringType },
+                    navArgument("aiTool") { type = NavType.StringType; nullable = true; defaultValue = null },
+                    navArgument("origin") { type = NavType.StringType; nullable = true; defaultValue = "home" }
+                )
             ) { backStackEntry ->
-                val imageUriString = backStackEntry.arguments?.getString("imageUri") ?: ""
-                val imageUri = imageUriString.takeIf { it.isNotEmpty() }?.let { Uri.parse(it) }
-                EditScreen(navController, imageUri)
+                val imageUriEncoded = backStackEntry.arguments?.getString("imageUri")
+                val imageUri = imageUriEncoded?.let { Uri.parse(Uri.decode(it)) }
+                val aiTool = backStackEntry.arguments?.getString("aiTool")
+                val origin = backStackEntry.arguments?.getString("origin")
+
+                EditScreen(
+                    navController = navController,
+                    imageUri = imageUri,
+                    aiTool = aiTool,
+                    origin = origin
+                )
             }
+
+
 
             composable(
                 route = "preview_screen/{imageUri}",

@@ -35,9 +35,11 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.photoeditordip.R
 import com.example.photoeditordip.editordip.presentation.components.ImagePickerButton
+import com.example.photoeditordip.editordip.presentation.editing.PresetHolderViewModel
 import com.example.photoeditordip.navigation.Screen
 
 data class AITool(
@@ -46,75 +48,194 @@ data class AITool(
     val color: Color,
     val originalPic: Painter,
     val editedPic: Painter,
+    val aiCode: String = ""
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AIToolboxScreen(navController: NavController) {
+fun AIToolboxScreen(
+    navController: NavController
+) {
     val tools = listOf(
         AITool(
-            "AI Avatar Generator",
-            "Turn your photo or selfie into an AI avatar",
-            Color(0xFFFF6B6B),
+            title = "AI Style Transfer",
+            description = "Apply artistic styles to your photo using neural networks",
+            color = Color(0xFF6A4C93),
             originalPic = painterResource(id = R.drawable.beautiful_girl_2829997_1280),
-            editedPic = painterResource(id = R.drawable.photo_2025_06_05_15_18_01)
+            editedPic = painterResource(id = R.drawable.photo_2025_06_05_15_18_01),
+            aiCode = "applyStyleTransfer"
         ),
         AITool(
-            "AI Photo Generator",
-            "Create multiple variations from a single photo",
-            Color(0xFF4ECDC4),
-            originalPic = painterResource(id = R.drawable.kartina_krik_1),
-            editedPic = painterResource(id = R.drawable.kartina_krik_1)
-        ),
-        AITool(
-            "AI Magic Eraser Photo",
-            "Remove unwanted objects from a photo in just one tap",
-            Color(0xFFA8DADC),
-            originalPic = painterResource(id = R.drawable.girl2),
-            editedPic = painterResource(id = R.drawable.photo_2025_06_12_20_57_35)
-        ),
-        AITool(
-            "AI Background Remover",
-            "Remove background from a photo in just one click",
-            Color(0xFFFFBE0B),
+            title = "AI Pixelate Effect",
+            description = "Pixelate your image to create a retro or mosaic style",
+            color = Color(0xFF4ECDC4),
             originalPic = painterResource(id = R.drawable.beautiful_girl_2829997_1280),
-            editedPic = painterResource(id = R.drawable.photo_2025_06_05_15_18_01)
+            editedPic = painterResource(id = R.drawable.photo_2025_06_05_15_18_01),
+            aiCode = "applyPixelateEffect"
         ),
         AITool(
-            "AI Photo Recoloring",
-            "Change the color of the image with a variety of styles",
-            Color(0xFF6A4C93),
+            title = "AI Background Remover",
+            description = "Erase the background from your photo instantly",
+            color = Color(0xFFFFBE0B),
             originalPic = painterResource(id = R.drawable.beautiful_girl_2829997_1280),
-            editedPic = painterResource(id = R.drawable.photo_2025_06_05_15_18_01)
+            editedPic = painterResource(id = R.drawable.photo_2025_06_05_15_18_01),
+            aiCode = "applyRemoveBackground"
         ),
         AITool(
-            "AI Old Photo Restoration",
-            "Enhance the quality of old photos so they look great",
-            Color(0xFF1A535C),
+            title = "AI Cartoonify",
+            description = "Transform your photo into a cartoon-style image",
+            color = Color(0xFF6A4C93),
             originalPic = painterResource(id = R.drawable.beautiful_girl_2829997_1280),
-            editedPic = painterResource(id = R.drawable.photo_2025_06_05_15_18_01)
+            editedPic = painterResource(id = R.drawable.photo_2025_06_05_15_18_01),
+            aiCode = "applyCartoonify"
         ),
         AITool(
-            "AI Old Photo Colorization",
-            "Colorize old photos so it looks more alive",
-            Color(0xFFFF6B6B),
+            title = "AI Enhance Details",
+            description = "Improve image clarity by enhancing fine details",
+            color = Color(0xFF1A535C),
             originalPic = painterResource(id = R.drawable.beautiful_girl_2829997_1280),
-            editedPic = painterResource(id = R.drawable.photo_2025_06_05_15_18_01)
+            editedPic = painterResource(id = R.drawable.photo_2025_06_05_15_18_01),
+            aiCode = "applyEnhanceDetailsEffect"
         ),
         AITool(
-            "Extend Images",
-            "Change the aspect ratio of your image with one click",
-            Color(0xFF4ECDC4),
+            title = "AI CLAHE Filter",
+            description = "Enhance contrast using adaptive histogram equalization",
+            color = Color(0xFFFF6B6B),
             originalPic = painterResource(id = R.drawable.beautiful_girl_2829997_1280),
-            editedPic = painterResource(id = R.drawable.photo_2025_06_05_15_18_01)
+            editedPic = painterResource(id = R.drawable.photo_2025_06_05_15_18_01),
+            aiCode = "applyClaheEffect"
         ),
         AITool(
-            "Batch Enhance Photos",
-            "Enhance a batch of photos at once",
-            Color(0xFFA8DADC),
+            title = "AI HDR Filter",
+            description = "Simulate high dynamic range for vivid images",
+            color = Color(0xFF4ECDC4),
             originalPic = painterResource(id = R.drawable.beautiful_girl_2829997_1280),
-            editedPic = painterResource(id = R.drawable.photo_2025_06_05_15_18_01))
+            editedPic = painterResource(id = R.drawable.photo_2025_06_05_15_18_01),
+            aiCode = "applyHDR"
+        ),
+        AITool(
+            title = "AI Sharpen Effect",
+            description = "Sharpen blurry areas to improve edge definition",
+            color = Color(0xFFA8DADC),
+            originalPic = painterResource(id = R.drawable.beautiful_girl_2829997_1280),
+            editedPic = painterResource(id = R.drawable.photo_2025_06_05_15_18_01),
+            aiCode = "applySharpenEffect"
+        ),
+        AITool(
+            title = "AI Reduce Noise",
+            description = "Remove visual noise while preserving details",
+            color = Color(0xFF1A535C),
+            originalPic = painterResource(id = R.drawable.beautiful_girl_2829997_1280),
+            editedPic = painterResource(id = R.drawable.photo_2025_06_05_15_18_01),
+            aiCode = "applyReduceNoiseEffect"
+        ),
+        AITool(
+            title = "AI Vignette Effect",
+            description = "Darken edges to create a vignette focus effect",
+            color = Color(0xFFFF6B6B),
+            originalPic = painterResource(id = R.drawable.beautiful_girl_2829997_1280),
+            editedPic = painterResource(id = R.drawable.photo_2025_06_05_15_18_01),
+            aiCode = "applyVignetteEffect"
+        ),
+        AITool(
+            title = "AI Solarize Effect",
+            description = "Apply surreal lighting with solarization",
+            color = Color(0xFF6A4C93),
+            originalPic = painterResource(id = R.drawable.beautiful_girl_2829997_1280),
+            editedPic = painterResource(id = R.drawable.photo_2025_06_05_15_18_01),
+            aiCode = "applySolarizeEffect"
+        ),
+        AITool(
+            title = "AI Sobel Edge Detection",
+            description = "Highlight edges using Sobel operator",
+            color = Color(0xFF1A535C),
+            originalPic = painterResource(id = R.drawable.beautiful_girl_2829997_1280),
+            editedPic = painterResource(id = R.drawable.photo_2025_06_05_15_18_01),
+            aiCode = "applySobelEffect"
+        ),
+        AITool(
+            title = "AI Laplacian Filter",
+            description = "Detect edges using Laplacian operator",
+            color = Color(0xFFA8DADC),
+            originalPic = painterResource(id = R.drawable.beautiful_girl_2829997_1280),
+            editedPic = painterResource(id = R.drawable.photo_2025_06_05_15_18_01),
+            aiCode = "applyLaplacianEffect"
+        ),
+        AITool(
+            title = "AI Film Grain",
+            description = "Add realistic film grain effect to your image",
+            color = Color(0xFF6A4C93),
+            originalPic = painterResource(id = R.drawable.beautiful_girl_2829997_1280),
+            editedPic = painterResource(id = R.drawable.photo_2025_06_05_15_18_01),
+            aiCode = "applyFilmGrainEffect"
+        ),
+        AITool(
+            title = "AI Equalize Exposure",
+            description = "Automatically balance brightness across the photo",
+            color = Color(0xFFFFBE0B),
+            originalPic = painterResource(id = R.drawable.beautiful_girl_2829997_1280),
+            editedPic = painterResource(id = R.drawable.photo_2025_06_05_15_18_01),
+            aiCode = "applyEqualizeExposureEffect"
+        ),
+        AITool(
+            title = "AI Negative Effect",
+            description = "Invert colors to create a photographic negative",
+            color = Color(0xFFFF6B6B),
+            originalPic = painterResource(id = R.drawable.beautiful_girl_2829997_1280),
+            editedPic = painterResource(id = R.drawable.photo_2025_06_05_15_18_01),
+            aiCode = "applyNegativeEffect"
+        ),
+        AITool(
+            title = "AI Pencil Sketch",
+            description = "Convert your photo into a pencil sketch drawing",
+            color = Color(0xFF4ECDC4),
+            originalPic = painterResource(id = R.drawable.beautiful_girl_2829997_1280),
+            editedPic = painterResource(id = R.drawable.photo_2025_06_05_15_18_01),
+            aiCode = "applyPencil"
+        ),
+        AITool(
+            title = "AI Colored Pencil",
+            description = "Draw photo using colored pencil style",
+            color = Color(0xFFA8DADC),
+            originalPic = painterResource(id = R.drawable.beautiful_girl_2829997_1280),
+            editedPic = painterResource(id = R.drawable.photo_2025_06_05_15_18_01),
+            aiCode = "applyPencilColor"
+        ),
+        AITool(
+            title = "AI Watercolor",
+            description = "Give your photo a painted watercolor effect",
+            color = Color(0xFF1A535C),
+            originalPic = painterResource(id = R.drawable.beautiful_girl_2829997_1280),
+            editedPic = painterResource(id = R.drawable.photo_2025_06_05_15_18_01),
+            aiCode = "applyWaterColor"
+        ),
+        AITool(
+            title = "AI Oil Painting",
+            description = "Convert photo into an oil painting style",
+            color = Color(0xFF6A4C93),
+            originalPic = painterResource(id = R.drawable.beautiful_girl_2829997_1280),
+            editedPic = painterResource(id = R.drawable.photo_2025_06_05_15_18_01),
+            aiCode = "applyOilPainting"
+        ),
+        AITool(
+            title = "AI Background Blur",
+            description = "Blur the background while keeping the subject clear",
+            color = Color(0xFFFFBE0B),
+            originalPic = painterResource(id = R.drawable.beautiful_girl_2829997_1280),
+            editedPic = painterResource(id = R.drawable.photo_2025_06_05_15_18_01),
+            aiCode = "applyBackgroundBlur"
+        ),
+        AITool(
+            title = "AI General Blur",
+            description = "Apply overall blur effect to the entire image",
+            color = Color(0xFFA8DADC),
+            originalPic = painterResource(id = R.drawable.beautiful_girl_2829997_1280),
+            editedPic = painterResource(id = R.drawable.photo_2025_06_05_15_18_01),
+            aiCode = "applyBlur"
+        )
     )
+
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -213,12 +334,15 @@ fun AIToolCard(tool: AITool, navController: NavController) {
                 ImagePickerButton(
                     modifier = Modifier.fillMaxWidth(),
                     onImagePicked = { uri: Uri? ->
-                    uri?.let {
-                        val encodedUri = Uri.encode(it.toString())
-                        navController.navigate(Screen.EditParam(imageUri = encodedUri).route)
-                    }
-                },
-                    buttonText = "Try")
+                        uri?.let {
+                            val encodedUri = Uri.encode(it.toString())
+                            val encodedTool = Uri.encode(tool.aiCode)
+                            navController.navigate(Screen.EditParam(imageUri = encodedUri, aiTool = encodedTool, origin = "ai_toolbox").route, )
+                        }
+                    },
+                    buttonText = "Try"
+                )
+
             }
         }
     }

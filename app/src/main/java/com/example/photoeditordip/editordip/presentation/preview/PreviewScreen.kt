@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.AlertDialog
@@ -43,7 +44,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.content.FileProvider
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -95,81 +98,91 @@ fun PreviewScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(MaterialTheme.colorScheme.surface)
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceEvenly
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Button(onClick = {
-                viewModel.clearFullHistory()
-                navController.navigate(Screen.Home.route) {
-                    popUpTo(Screen.Preview.route) { inclusive = true }
-                }
-            }) {
-                Icon(Icons.Default.ArrowBack, contentDescription = "Home")
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("Home")
+            Button(
+                onClick = {
+                    viewModel.clearFullHistory()
+                    navController.navigate(Screen.Home.route) {
+                        popUpTo(Screen.Preview.route) { inclusive = true }
+                    }
+                },
+                modifier = Modifier.weight(1f)
+            ) {
+                Icon(Icons.Default.Home, contentDescription = "Home")
+                Spacer(modifier = Modifier.width(6.dp))
+                Text("Home",
+                    style = TextStyle(fontSize = 12.sp))
             }
 
-            Button(onClick = {
-                imageUri?.let { shareImage(context, it) }
-            }) {
+            Button(
+                onClick = {
+                    imageUri?.let { shareImage(context, it) }
+                },
+                modifier = Modifier.weight(1f)
+            ) {
                 Icon(Icons.Default.Share, contentDescription = "Share")
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("Share")
+                Spacer(modifier = Modifier.width(6.dp))
+                Text("Share",style = TextStyle(fontSize = 12.sp))
             }
 
-            Button(onClick = {
-                showDialog = true // Показываем диалог
-            }) {
-                Icon(Icons.Default.Save, contentDescription = "SavePreset")
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("Save Preset")
+            Button(
+                onClick = {
+                    showDialog = true
+                },
+                modifier = Modifier.weight(1f)
+            ) {
+                Icon(Icons.Default.Save, contentDescription = "Save Preset")
+                Spacer(modifier = Modifier.width(6.dp))
+                Text("Save", style = TextStyle(fontSize = 12.sp))
             }
         }
-    }
 
-    // Диалог для ввода имени пресета
-    if (showDialog) {
-        AlertDialog(
-            onDismissRequest = { showDialog = false },
-            title = { Text("Save Preset") },
-            text = {
-                OutlinedTextField(
-                    value = presetName,
-                    onValueChange = { presetName = it },
-                    label = { Text("Preset Name") },
-                    singleLine = true
-                )
-            },
-            confirmButton = {
-                TextButton(onClick = {
-                    if (presetName.isNotBlank()) {
-                        imageUri?.let { viewModel.savePreset(presetName.trim(), it) }
-                        presetName = ""
-                        showDialog = false
-                    }else{
-                        Toast.makeText(context, "Write Name", Toast.LENGTH_SHORT).show()
+
+        // Диалог для ввода имени пресета
+        if (showDialog) {
+            AlertDialog(
+                onDismissRequest = { showDialog = false },
+                title = { Text("Save Preset") },
+                text = {
+                    OutlinedTextField(
+                        value = presetName,
+                        onValueChange = { presetName = it },
+                        label = { Text("Preset Name") },
+                        singleLine = true
+                    )
+                },
+                confirmButton = {
+                    TextButton(onClick = {
+                        if (presetName.isNotBlank()) {
+                            imageUri?.let { viewModel.savePreset(presetName.trim(), it) }
+                            presetName = ""
+                            showDialog = false
+                        } else {
+                            Toast.makeText(context, "Write Name", Toast.LENGTH_SHORT).show()
+                        }
+                    }) {
+                        Text("OK")
                     }
-                }) {
-                    Text("OK")
+                },
+                dismissButton = {
+                    TextButton(onClick = {
+                        showDialog = false
+                    }) {
+                        Text("Cancel")
+                    }
                 }
-            },
-            dismissButton = {
-                TextButton(onClick = {
-                    showDialog = false
-                }) {
-                    Text("Cancel")
-                }
-            }
-        )
+            )
+        }
     }
 }
 
 
-
-fun shareImage(context: Context, imageUri: Uri) {
+fun shareImage(context: Context, it: Uri) {
     val intent = Intent(Intent.ACTION_SEND).apply {
         type = "image/png"
-        putExtra(Intent.EXTRA_STREAM, imageUri)
+        putExtra(Intent.EXTRA_STREAM, it)
         addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
     }
     context.startActivity(Intent.createChooser(intent, "Поделиться изображением через"))

@@ -1,7 +1,7 @@
 package com.example.photoeditordip.core.data.network
 
 object ApiConstants {
-    const val BASE_URL = "https://5954-5-59-231-7.ngrok-free.app/"
+    const val BASE_URL = "https://c54e-5-59-231-7.ngrok-free.app/"
 
     const val PROCESS = "process/"
     const val BLUR = "basic/blur/"

@@ -36,9 +36,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -63,7 +66,7 @@ fun HomeScreen(
         onResult = { imageUri ->
             imageUri?.let {
                 val encodedUri = Uri.encode(it.toString())
-                navController.navigate(Screen.EditParam(encodedUri).route)
+                navController.navigate(Screen.EditParam(encodedUri, origin = "home").route)
             }
         }
     )
@@ -127,7 +130,7 @@ fun HomeScreen(
             ImagePickerButton(onImagePicked = { uri: Uri? ->
                 uri?.let {
                     val encodedUri = Uri.encode(it.toString())
-                    navController.navigate(Screen.EditParam(imageUri = encodedUri).route)
+                    navController.navigate(Screen.EditParam(imageUri = encodedUri, origin = "home").route)
                 }
             })
         }
@@ -143,28 +146,41 @@ fun HomeScreen(
                         style = MaterialTheme.typography.titleMedium,
                         modifier = Modifier.padding(bottom = 8.dp)
                     )
-                    LazyVerticalGrid(
-                        columns = GridCells.Fixed(3),
-                        contentPadding = PaddingValues(4.dp),
-                        modifier = Modifier.height(250.dp)
+                    Box(
+                        modifier = Modifier // чуть меньше, чтобы скомпенсировать размер
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(Color(0xFFE0E0E0)) // светло-серый фон
                     ) {
-                        items(state.userImages) { bitmap ->
-                            Image(
-                                painter = rememberAsyncImagePainter(bitmap),
-                                contentDescription = "User Image",
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier
-                                    .width(120.dp)
-                                    .height(120.dp)
-                                    .padding(4.dp)
-                                    .clip(RoundedCornerShape(12.dp))
-                                    .clickable {
-                                        val encodedUri = Uri.encode(bitmap.toString())
-                                        navController.navigate(Screen.EditParam(imageUri = encodedUri).route)
-                                    }
-                            )
+                        LazyVerticalGrid(
+                            columns = GridCells.Fixed(3),
+                            contentPadding = PaddingValues(4.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(230.dp)
+                        ) {
+                            items(state.userImages) { imagePair ->
+                                val uri = imagePair.first
+                                val bitmap = imagePair.second
+
+                                Image(
+                                    painter = rememberAsyncImagePainter(bitmap),
+                                    contentDescription = "User Image",
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier
+                                        .size(130.dp)
+                                        .padding(4.dp)
+                                        .clip(RoundedCornerShape(12.dp))
+                                        .clickable {
+                                            val encodedUri = Uri.encode(uri.toString())
+                                            navController.navigate(Screen.EditParam(imageUri = encodedUri, origin = "home").route)
+                                        }
+                                )
+                            }
+
                         }
                     }
+
+
                 }
             }
             is HomeScreenState.Loading -> {
@@ -185,27 +201,62 @@ fun HomeScreen(
                 style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
-            LazyRow(
-                contentPadding = PaddingValues(horizontal = 4.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            Box(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(Color(0xFFE0E0E0))
             ) {
-                items(presets) { preset ->
-                    val uri = remember(preset.imageUri) { Uri.parse(preset.imageUri) }
-                    Image(
-                        painter = rememberAsyncImagePainter(uri),
-                        contentDescription = preset.name,
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier
-                            .size(120.dp)
-                            .clip(RoundedCornerShape(12.dp))
-                            .clickable {
-                                holderViewModel.setSelectedPreset(preset) // сохранить выбранный пресет
-                                launcher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                LazyRow(
+                    contentPadding = PaddingValues(4.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.fillMaxWidth().padding(4.dp)
+                ) {
+                    items(presets) { preset ->
+                        val uri = remember(preset.imageUri) { Uri.parse(preset.imageUri) }
 
+                        Box(
+                            modifier = Modifier
+                                .size(width = 150.dp, height = 274.dp)
+                                .clip(RoundedCornerShape(16.dp))
+                                .clickable {
+                                    holderViewModel.setSelectedPreset(preset)
+                                    launcher.launch(
+                                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                                    )
+                                }
+                        ) {
+                            Image(
+                                painter = rememberAsyncImagePainter(uri),
+                                contentDescription = preset.name,
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier.fillMaxSize()
+                            )
+
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .align(Alignment.BottomCenter)
+                                    .background(
+                                        Brush.verticalGradient(
+                                            colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.6f))
+                                        )
+                                    )
+                                    .padding(8.dp)
+                            ) {
+                                Text(
+                                    text = preset.name,
+                                    color = Color.White,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    maxLines = 2,
+                                    overflow = TextOverflow.Ellipsis
+                                )
                             }
-                    )
+                        }
+                    }
                 }
+
             }
+
         }
     }
 }

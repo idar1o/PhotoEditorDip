@@ -6,6 +6,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.provider.MediaStore
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -82,17 +83,23 @@ sealed class DrawShape {
 enum class DrawMode { LINE, RECTANGLE, CIRCLE , NONE}
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditScreen(
     navController: NavController,
     imageUri: Uri?,
-    sharedViewModel: PresetHolderViewModel = hiltViewModel(
-        navController.getBackStackEntry(Screen.Home.route)
-    )
+    aiTool: String?,
+    origin: String?
 ) {
-    val parentEntry = remember { navController.getBackStackEntry(Screen.Home.route) }
-    val viewModel: EditViewModel = hiltViewModel(parentEntry)
+    val sharedViewModel: PresetHolderViewModel = when (origin) {
+        "home" -> hiltViewModel(navController.getBackStackEntry(Screen.Home.route))
+        "ai_toolbox" -> hiltViewModel(navController.getBackStackEntry(Screen.AIToolbox.route))
+        else -> hiltViewModel(navController.getBackStackEntry(Screen.Home.route)) // fallback, если не удалось
+    }
+    val viewModel: EditViewModel = when (origin) {
+        "home" -> hiltViewModel(navController.getBackStackEntry(Screen.Home.route))
+        "ai_toolbox" -> hiltViewModel(navController.getBackStackEntry(Screen.AIToolbox.route))
+        else -> hiltViewModel(navController.getBackStackEntry(Screen.Home.route)) // fallback, если не удалось
+    }
     val preset = sharedViewModel.selectedPreset.collectAsState().value
 
     val context = LocalContext.current
@@ -133,6 +140,42 @@ fun EditScreen(
             viewModel.applyPreset(it) // применяем эффекты к фото
         }
     }
+    LaunchedEffect(aiTool, displayBitmap) {
+        Log.d("EditScreen", "aiTool = $aiTool") // 🔍 Добавь лог
+
+        if (aiTool != null && displayBitmap != null) {
+            val file = bitmapToFile(context, displayBitmap!!, "image_${System.currentTimeMillis()}.png")
+
+            when (aiTool) {
+                "applyBlur" -> viewModel.applyBlur(file)
+                "applyBackgroundBlur" -> viewModel.applyBackgroundBlur(file, 50) // можно задать дефолт
+                "applyStyleTransfer" -> {
+                    val styleFile = uriToFile(context, Uri.parse("android.resource://${context.packageName}/${R.drawable.images}"))
+                    if (styleFile != null) viewModel.applyStyleTransfer(file, styleFile)
+                }
+                "applyRemoveBackground" -> viewModel.applyRemoveBackground(file)
+                "applyCartoonify" -> viewModel.applyCartoonify(file)
+                "applyPencil" -> viewModel.applyPencil(file)
+                "applyPencilColor" -> viewModel.applyPencilColor(file)
+                "applyOilPainting" -> viewModel.applyOilPainting(file)
+                "applyWaterColor" -> viewModel.applyWaterColor(file)
+                "applyHDR" -> viewModel.applyHDR(file)
+                "applyEnhanceDetailsEffect" -> viewModel.applyEnhanceDetailsEffect(file)
+                "applyEqualizeExposureEffect" -> viewModel.applyEqualizeExposureEffect(file)
+                "applyClaheEffect" -> viewModel.applyClaheEffect(file, 2)
+                "applyNegativeEffect" -> viewModel.applyNegativeEffect(file)
+                "applyLaplacianEffect" -> viewModel.applyLaplacianEffect(file)
+                "applyReduceNoiseEffect" -> viewModel.applyReduceNoiseEffect(file, 10)
+                "applyVignetteEffect" -> viewModel.applyVignetteEffect(file, 2)
+                "applySolarizeEffect" -> viewModel.applySolarizeEffect(file, 128)
+                "applySobelEffect" -> viewModel.applySobelEffect(file, 3)
+                "applySharpenEffect" -> viewModel.applySharpenEffect(file, 2.0)
+                "applyPixelateEffect" -> viewModel.applyPixelateEffect(file, 15)
+                "applyFilmGrainEffect" -> viewModel.applyFilmGrainEffect(file, 5.0)
+            }
+        }
+    }
+
 
     // Handle UI state changes
     when (val state = uiState) {
@@ -749,8 +792,14 @@ fun EditScreen(
                                         CornerType.BOTTOM_RIGHT -> {
                                             val newPos = bottomRight + dragAmount
                                             bottomRight = Offset(
-                                                x = newPos.x.coerceIn(topLeft.x + 50f, imageBoxSize.width),
-                                                y = newPos.y.coerceIn(topLeft.y + 50f, imageBoxSize.height)
+                                                x = newPos.x.coerceIn(
+                                                    topLeft.x + 50f,
+                                                    imageBoxSize.width
+                                                ),
+                                                y = newPos.y.coerceIn(
+                                                    topLeft.y + 50f,
+                                                    imageBoxSize.height
+                                                )
                                             )
                                         }
 
