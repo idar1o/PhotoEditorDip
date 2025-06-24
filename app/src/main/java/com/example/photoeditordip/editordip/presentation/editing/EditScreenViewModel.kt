@@ -8,38 +8,41 @@ import android.util.Base64
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.photoeditordip.domain.usecase.ApplyBlurUseCase
+import com.example.photoeditordip.editordip.domain.usecases.ai_effects.ApplyBlurUseCase
 import com.example.photoeditordip.editordip.domain.models.EffectData
-import com.example.photoeditordip.editordip.domain.usecases.ApplyBlurBackgroundUseCase
-import com.example.photoeditordip.editordip.domain.usecases.ApplyBrightnessEffectUseCase
-import com.example.photoeditordip.editordip.domain.usecases.ApplyBWNegativeEffectUseCase
-import com.example.photoeditordip.editordip.domain.usecases.ApplyCannyEffectUseCase
-import com.example.photoeditordip.editordip.domain.usecases.ApplyCartoonifyUseCase
-import com.example.photoeditordip.editordip.domain.usecases.ApplyClaheEffectUseCase
-import com.example.photoeditordip.editordip.domain.usecases.ApplyContoursEffectUseCase
-import com.example.photoeditordip.editordip.domain.usecases.ApplyContrastEffectUseCase
-import com.example.photoeditordip.editordip.domain.usecases.ApplyEnhanceDetailsEffectUseCase
-import com.example.photoeditordip.editordip.domain.usecases.ApplyEqualizeExposureEffectUseCase
-import com.example.photoeditordip.editordip.domain.usecases.ApplyFilmGrainEffectUseCase
-import com.example.photoeditordip.editordip.domain.usecases.ApplyGrayScaleUseCase
-import com.example.photoeditordip.editordip.domain.usecases.ApplyHDRUseCase
-import com.example.photoeditordip.editordip.domain.usecases.ApplyLaplacianEffectUseCase
-import com.example.photoeditordip.editordip.domain.usecases.ApplyNegativeEffectUseCase
-import com.example.photoeditordip.editordip.domain.usecases.ApplyOilPaintingUseCase
-import com.example.photoeditordip.editordip.domain.usecases.ApplyPencilColorUseCase
-import com.example.photoeditordip.editordip.domain.usecases.ApplyPencilEffectUseCase
-import com.example.photoeditordip.editordip.domain.usecases.ApplyPixelateEffectUseCase
-import com.example.photoeditordip.editordip.domain.usecases.ApplyReduceNoiseEffectUseCase
-import com.example.photoeditordip.editordip.domain.usecases.ApplyRemoveBackgroundUseCase
-import com.example.photoeditordip.editordip.domain.usecases.ApplySharpenEffectUseCase
-import com.example.photoeditordip.editordip.domain.usecases.ApplySobelEffectUseCase
-import com.example.photoeditordip.editordip.domain.usecases.ApplySolarizeEffectUseCase
-import com.example.photoeditordip.editordip.domain.usecases.ApplyStyleTransferUseCase
-import com.example.photoeditordip.editordip.domain.usecases.ApplyTintEffectUseCase
-import com.example.photoeditordip.editordip.domain.usecases.ApplyVignetteEffectUseCase
-import com.example.photoeditordip.editordip.domain.usecases.ApplyWarmColdUseCase
-import com.example.photoeditordip.editordip.domain.usecases.ApplyWaterColorUseCase
-import com.example.photoeditordip.editordip.domain.usecases.ApplyInvertColorsUseCase
+import com.example.photoeditordip.editordip.domain.models.Preset
+import com.example.photoeditordip.editordip.domain.usecases.ai_effects.ApplyBlurBackgroundUseCase
+import com.example.photoeditordip.editordip.domain.usecases.ai_effects.ApplyBrightnessEffectUseCase
+import com.example.photoeditordip.editordip.domain.usecases.ai_effects.ApplyBWNegativeEffectUseCase
+import com.example.photoeditordip.editordip.domain.usecases.ai_effects.ApplyCannyEffectUseCase
+import com.example.photoeditordip.editordip.domain.usecases.ai_effects.ApplyCartoonifyUseCase
+import com.example.photoeditordip.editordip.domain.usecases.ai_effects.ApplyClaheEffectUseCase
+import com.example.photoeditordip.editordip.domain.usecases.ai_effects.ApplyContoursEffectUseCase
+import com.example.photoeditordip.editordip.domain.usecases.ai_effects.ApplyContrastEffectUseCase
+import com.example.photoeditordip.editordip.domain.usecases.ai_effects.ApplyEnhanceDetailsEffectUseCase
+import com.example.photoeditordip.editordip.domain.usecases.ai_effects.ApplyEqualizeExposureEffectUseCase
+import com.example.photoeditordip.editordip.domain.usecases.ai_effects.ApplyFilmGrainEffectUseCase
+import com.example.photoeditordip.editordip.domain.usecases.ai_effects.ApplyGrayScaleUseCase
+import com.example.photoeditordip.editordip.domain.usecases.ai_effects.ApplyHDRUseCase
+import com.example.photoeditordip.editordip.domain.usecases.ai_effects.ApplyLaplacianEffectUseCase
+import com.example.photoeditordip.editordip.domain.usecases.ai_effects.ApplyNegativeEffectUseCase
+import com.example.photoeditordip.editordip.domain.usecases.ai_effects.ApplyOilPaintingUseCase
+import com.example.photoeditordip.editordip.domain.usecases.ai_effects.ApplyPencilColorUseCase
+import com.example.photoeditordip.editordip.domain.usecases.ai_effects.ApplyPencilEffectUseCase
+import com.example.photoeditordip.editordip.domain.usecases.ai_effects.ApplyPixelateEffectUseCase
+import com.example.photoeditordip.editordip.domain.usecases.ai_effects.ApplyReduceNoiseEffectUseCase
+import com.example.photoeditordip.editordip.domain.usecases.ai_effects.ApplyRemoveBackgroundUseCase
+import com.example.photoeditordip.editordip.domain.usecases.ai_effects.ApplySharpenEffectUseCase
+import com.example.photoeditordip.editordip.domain.usecases.ai_effects.ApplySobelEffectUseCase
+import com.example.photoeditordip.editordip.domain.usecases.ai_effects.ApplySolarizeEffectUseCase
+import com.example.photoeditordip.editordip.domain.usecases.ai_effects.ApplyStyleTransferUseCase
+import com.example.photoeditordip.editordip.domain.usecases.ai_effects.ApplyTintEffectUseCase
+import com.example.photoeditordip.editordip.domain.usecases.ai_effects.ApplyVignetteEffectUseCase
+import com.example.photoeditordip.editordip.domain.usecases.ai_effects.ApplyWarmColdUseCase
+import com.example.photoeditordip.editordip.domain.usecases.ai_effects.ApplyWaterColorUseCase
+import com.example.photoeditordip.editordip.domain.usecases.ai_effects.ApplyInvertColorsUseCase
+import com.example.photoeditordip.editordip.domain.usecases.ai_effects.ContrastEffectParams
+import com.example.photoeditordip.editordip.domain.usecases.presets.SavePresetUseCase
 
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -90,7 +93,9 @@ class EditViewModel @Inject constructor(
     private val applyVignetteEffectUseCase: ApplyVignetteEffectUseCase,
     private val applyWarmColdUseCase: ApplyWarmColdUseCase,
     private val applyWaterColorUseCase: ApplyWaterColorUseCase,
-    private val invertColorsUseCase: ApplyInvertColorsUseCase
+    private val invertColorsUseCase: ApplyInvertColorsUseCase,
+    //Preset methods
+    private val savePresetUseCase: SavePresetUseCase,
     ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<EditScreenState>(EditScreenState.Idle)
@@ -111,7 +116,10 @@ class EditViewModel @Inject constructor(
     fun canUndo(): Boolean = currentIndex > 0
     fun canRedo(): Boolean = currentIndex < history.lastIndex
     fun addToHistory(bitmap: Bitmap, effect: EffectData?) {
+        Log.d("EditViewModel", "addToHistory called. Effect: $effect, currentIndex: $currentIndex")
+
         if (currentIndex < history.lastIndex) {
+            Log.d("EditViewModel", "Trimming history from index ${currentIndex + 1} to ${history.size}")
             history.subList(currentIndex + 1, history.size).clear()
             effectHistory.subList(currentIndex + 1, effectHistory.size).clear()
         }
@@ -119,6 +127,8 @@ class EditViewModel @Inject constructor(
         history.add(bitmap)
         effectHistory.add(effect)
         currentIndex++
+
+        Log.d("EditViewModel", "EffectHistory after add: $effectHistory")
     }
 
     fun addToHistory(bitmap: Bitmap) {
@@ -144,55 +154,123 @@ class EditViewModel @Inject constructor(
         }
     }
 
-    fun cropBitmap( x: Int, y: Int, width: Int, height: Int){
+    fun clearFullHistory() {
+        history.clear()
+        effectHistory.clear()
+        currentIndex = -1
+    }
+    fun savePreset(name: String, imageUri: Uri) {
+        viewModelScope.launch {
+            Log.d("EditViewModel", "Saving preset with name: $name")
+            Log.d("EditViewModel", "Full effectHistory: $effectHistory")
+            Log.d("EditViewModel", "Filtered effectHistory: ${effectHistory.filterNotNull()}")
+
+            val preset = Preset(
+                name = name,
+                effects = effectHistory.filterNotNull(),
+                imageUri = imageUri.toString()
+            )
+
+            savePresetUseCase.invoke(preset)
+        }
+    }
+
+    fun applyPreset(preset: Preset) {
+        Log.d("EditViewModel", "Applying preset: ${preset.effects.forEach{e -> e.type+" "+ e.params}}")
+        viewModelScope.launch {
+            preset.effects.forEach { effect ->
+                when (effect.type) {
+                    "Sepia" -> {
+                        val intensity = effect.params["intensity"] ?: 50f
+                        val editedBitmap = sepiaFilter(bitmap = currentEditingPicture!!, intensity = intensity)
+                        updateExternalBitmap(editedBitmap)
+
+                    }
+                    "LocalBlur" -> {
+                        val blur = effect.params["blurStrength"] ?: 1f
+                        val editedBitmap = localBlurFilter(blurStrength = blur, bitmap = currentEditingPicture!!)
+                        updateExternalBitmap(editedBitmap)
+
+                    }
+                    "Brightness" -> {
+                        val value = effect.params["brightness"] ?: 50f
+                        val editedBitmap = brightnessFilter(brightness = value, bitmap = currentEditingPicture!!)
+                        updateExternalBitmap(editedBitmap)
+                    }
+                    "Contrast" -> {
+                        val value = effect.params["contrast"] ?: 50f
+                        val editedBitmap = contrastFilter(contrast = value, bitmap = currentEditingPicture!!)
+                        updateExternalBitmap(editedBitmap)
+                    }
+                    "Saturation" -> {
+                        val value = effect.params["saturation"] ?: 1f
+                        val editedBitmap = saturationFilter(saturation = value, bitmap = currentEditingPicture!!)
+                        updateExternalBitmap(editedBitmap)
+                    }
+                    "Rotation" -> {
+                        val angle = effect.params["angle"] ?: 0f
+                        val editedBitmap = rotationFilter(angle = angle, bitmap = currentEditingPicture!!)
+                        updateExternalBitmap(editedBitmap)
+                    }
+                    "Crop" -> { // если решишь так назвать
+                        val x = effect.params["x"]?.toInt() ?: 0
+                        val y = effect.params["y"]?.toInt() ?: 0
+                        val w = effect.params["width"]?.toInt() ?: 100
+                        val h = effect.params["height"]?.toInt() ?: 100
+                        val editedBitmap = bitmapCropping(x = x, y = y, width = w, height = h, source = currentEditingPicture!!)
+                        updateExternalBitmap(editedBitmap)
+                    }
+                    else -> {
+                        Log.w("applyPreset", "Неизвестный эффект: ${effect.type}")
+                    }
+                }
+            }
+            _uiState.value = EditScreenState.Result(currentEditingPicture!!)
+
+        }
+    }
+
+
+    fun cropBitmap(x: Int, y: Int, width: Int, height: Int) {
         Log.d("cropBitmap", "x: $x, y: $y, width: $width, height: $height")
-        val source = currentEditingPicture!!
-        // Убедимся, что область не выходит за пределы изображения
+        viewModelScope.launch {
+            try {
+                val source = currentEditingPicture!!
+                val result = bitmapCropping(source, x, y, width, height)
+
+                _uiState.value = EditScreenState.Result(result)
+                val params = mapOf(
+                    "x" to x.toFloat(),
+                    "y" to y.toFloat(),
+                    "width" to width.toFloat(),
+                    "height" to height.toFloat()
+                )
+                addToHistory(result, EffectData("Crop", params))
+            } catch (e: Exception) {
+                _uiState.value = EditScreenState.Error("Failed to apply crop: ${e.message}")
+            }
+        }
+    }
+
+    private fun bitmapCropping(source: Bitmap, x: Int, y: Int, width: Int, height: Int): Bitmap {
         val safeX = x.coerceAtLeast(0)
         val safeY = y.coerceAtLeast(0)
         val safeWidth = (safeX + width).coerceAtMost(source.width) - safeX
         val safeHeight = (safeY + height).coerceAtMost(source.height) - safeY
-
-        val result = Bitmap.createBitmap(source, safeX, safeY, safeWidth, safeHeight)
-
-
-        _uiState.value = EditScreenState.Result(result)
-        val params = mapOf(
-            Pair("x", x.toFloat()),
-            Pair("y", y.toFloat()),
-            Pair("width", width.toFloat()),
-            Pair("height", height.toFloat())
-        )
-        addToHistory(result, EffectData("Sepia", params))
+        return Bitmap.createBitmap(source, safeX, safeY, safeWidth, safeHeight)
     }
+
 
 
 
     fun applySepia(intensity: Float) {
         viewModelScope.launch {
-//            _uiState.value = EditScreenState.Loading
             try {
-                val current: Bitmap = currentEditingPicture!!
-
-                val config = current.config ?: Bitmap.Config.ARGB_8888
-                val result = current.copy(config, true)
-                val mat = Mat()
-                Utils.bitmapToMat(current, mat)
-                val normalizedIntensity = intensity / 100f
-
-                val sepiaKernel = Mat(4, 4, CvType.CV_32F)
-                sepiaKernel.put(0, 0,
-                    0.272 + (1 - normalizedIntensity), 0.534 - (1 - normalizedIntensity), 0.131 - (1 - normalizedIntensity), 0.0,
-                    0.349 - (1 - normalizedIntensity), 0.686 + (1 - normalizedIntensity), 0.168 - (1 - normalizedIntensity), 0.0,
-                    0.393 - (1 - normalizedIntensity), 0.769 - (1 - normalizedIntensity), 0.189 + (1 - normalizedIntensity), 0.0,
-                    0.0, 0.0, 0.0, 1.0
-                )
-
-                Core.transform(mat, mat, sepiaKernel)
-                Utils.matToBitmap(mat, result)
+                val current = currentEditingPicture!!
+                val result = sepiaFilter(current, intensity)
 
                 _uiState.value = EditScreenState.Result(result)
-                val params = mapOf(Pair("intesity", intensity))
+                val params = mapOf("intensity" to intensity)
                 addToHistory(result, EffectData("Sepia", params))
             } catch (e: Exception) {
                 _uiState.value = EditScreenState.Error("Failed to apply sepia: ${e.message}")
@@ -200,24 +278,36 @@ class EditViewModel @Inject constructor(
         }
     }
 
+    private fun sepiaFilter(bitmap: Bitmap, intensity: Float): Bitmap {
+        val config = bitmap.config ?: Bitmap.Config.ARGB_8888
+        val result = bitmap.copy(config, true)
+        val mat = Mat()
+        Utils.bitmapToMat(bitmap, mat)
+
+        val normalizedIntensity = intensity / 100f
+        val sepiaKernel = Mat(4, 4, CvType.CV_32F)
+        sepiaKernel.put(0, 0,
+            0.272 + (1 - normalizedIntensity), 0.534 - (1 - normalizedIntensity), 0.131 - (1 - normalizedIntensity), 0.0,
+            0.349 - (1 - normalizedIntensity), 0.686 + (1 - normalizedIntensity), 0.168 - (1 - normalizedIntensity), 0.0,
+            0.393 - (1 - normalizedIntensity), 0.769 - (1 - normalizedIntensity), 0.189 + (1 - normalizedIntensity), 0.0,
+            0.0, 0.0, 0.0, 1.0
+        )
+
+        Core.transform(mat, mat, sepiaKernel)
+        Utils.matToBitmap(mat, result)
+        return result
+    }
+
+
 
     fun applyLocalBlur(blurStrength: Float = 0.5f) {
         viewModelScope.launch {
-//            _uiState.value = EditScreenState.Loading
             try {
                 val current = currentEditingPicture!!
-
-                val config = current.config ?: Bitmap.Config.ARGB_8888
-                val result = current.copy(config, true)
-                val mat = Mat()
-                Utils.bitmapToMat(current, mat)
-                val kernelSize = ((blurStrength / 2).toInt().coerceAtLeast(1)).let { if (it % 2 == 0) it + 1 else it }
-
-                Imgproc.GaussianBlur(mat, mat, Size(kernelSize.toDouble(), kernelSize.toDouble()), 0.0)
-                Utils.matToBitmap(mat, result)
+                val result = localBlurFilter(current, blurStrength)
 
                 _uiState.value = EditScreenState.Result(result)
-                val params = mapOf(Pair("blurStrength", blurStrength))
+                val params = mapOf("blurStrength" to blurStrength)
                 addToHistory(result, EffectData("LocalBlur", params))
             } catch (e: Exception) {
                 _uiState.value = EditScreenState.Error("Failed to apply blur: ${e.message}")
@@ -225,23 +315,28 @@ class EditViewModel @Inject constructor(
         }
     }
 
+    private fun localBlurFilter(bitmap: Bitmap, blurStrength: Float): Bitmap {
+        val config = bitmap.config ?: Bitmap.Config.ARGB_8888
+        val result = bitmap.copy(config, true)
+        val mat = Mat()
+        Utils.bitmapToMat(bitmap, mat)
+
+        val kernelSize = ((blurStrength / 2).toInt().coerceAtLeast(1)).let { if (it % 2 == 0) it + 1 else it }
+        Imgproc.GaussianBlur(mat, mat, Size(kernelSize.toDouble(), kernelSize.toDouble()), 0.0)
+        Utils.matToBitmap(mat, result)
+        return result
+    }
+
+
 
     fun applyBrightness(brightness: Float) {
         viewModelScope.launch {
-            _uiState.value = EditScreenState.Loading
             try {
                 val current = currentEditingPicture!!
-
-                val config = current.config ?: Bitmap.Config.ARGB_8888
-                val result = current.copy(config, true)
-                val mat = Mat()
-                Utils.bitmapToMat(current, mat)
-                val brightnessOffset = brightness - 50f // чтобы 50 стало 0
-                mat.convertTo(mat, -1, 1.0, brightnessOffset.toDouble())
-                Utils.matToBitmap(mat, result)
+                val result = brightnessFilter(current, brightness)
 
                 _uiState.value = EditScreenState.Result(result)
-                val params = mapOf(Pair("brightness", brightness))
+                val params = mapOf("brightness" to brightness)
                 addToHistory(result, EffectData("Brightness", params))
             } catch (e: Exception) {
                 _uiState.value = EditScreenState.Error("Failed to apply brightness: ${e.message}")
@@ -249,23 +344,28 @@ class EditViewModel @Inject constructor(
         }
     }
 
+    private fun brightnessFilter(bitmap: Bitmap, brightness: Float): Bitmap {
+        val config = bitmap.config ?: Bitmap.Config.ARGB_8888
+        val result = bitmap.copy(config, true)
+        val mat = Mat()
+        Utils.bitmapToMat(bitmap, mat)
+
+        val brightnessOffset = brightness - 50f // чтобы 50 = 0
+        mat.convertTo(mat, -1, 1.0, brightnessOffset.toDouble())
+
+        Utils.matToBitmap(mat, result)
+        return result
+    }
+
+
     fun applyContrast(contrast: Float) {
         viewModelScope.launch {
-            _uiState.value = EditScreenState.Loading
             try {
                 val current = currentEditingPicture!!
-
-                val config = current.config ?: Bitmap.Config.ARGB_8888
-                val result = current.copy(config, true)
-                val mat = Mat()
-                Utils.bitmapToMat(current, mat)
-                val contrastFactor = contrast / 50f // чтобы 50 стало 1.0
-
-                mat.convertTo(mat, -1, contrastFactor.toDouble(), 0.0)
-                Utils.matToBitmap(mat, result)
+                val result = contrastFilter(current, contrast)
 
                 _uiState.value = EditScreenState.Result(result)
-                val params = mapOf(Pair("contrast", contrast))
+                val params = mapOf("contrast" to contrast)
                 addToHistory(result, EffectData("Contrast", params))
             } catch (e: Exception) {
                 _uiState.value = EditScreenState.Error("Failed to apply contrast: ${e.message}")
@@ -273,74 +373,30 @@ class EditViewModel @Inject constructor(
         }
     }
 
-    fun applyGammaCorrection(bitmap: Bitmap, gamma: Double): Bitmap {
+    private fun contrastFilter(bitmap: Bitmap, contrast: Float): Bitmap {
+        val config = bitmap.config ?: Bitmap.Config.ARGB_8888
+        val result = bitmap.copy(config, true)
         val mat = Mat()
-        Utils.bitmapToMat(bitmap, mat) // Нормализуем в диапазон [0.0, 1.0]
-        mat.convertTo(mat, CvType.CV_32F)
-        Core.divide(mat, Scalar(255.0, 255.0, 255.0), mat) // Применяем gamma-коррекцию
-        Core.pow(mat, gamma, mat)// Обратно в диапазон [0, 255]
-        Core.multiply(mat, Scalar(255.0, 255.0, 255.0), mat)
-        mat.convertTo(mat, CvType.CV_8UC3)
-        val result = Bitmap.createBitmap(bitmap.width, bitmap.height, Bitmap.Config.ARGB_8888)
+        Utils.bitmapToMat(bitmap, mat)
+
+        val contrastFactor = contrast / 50f // 50 = 1.0
+        mat.convertTo(mat, -1, contrastFactor.toDouble(), 0.0)
+
         Utils.matToBitmap(mat, result)
         return result
     }
-    fun applyUnsharpMasking(bitmap: Bitmap, kernelSize: Int = 5, sigma: Double = 1.0, alpha: Double = 1.5): Bitmap {
-        val src = Mat()
-        Utils.bitmapToMat(bitmap, src)
-        val blurred = Mat()
-        Imgproc.GaussianBlur(src, blurred, Size(kernelSize.toDouble(), kernelSize.toDouble()), sigma)
-        // Разность (детали)
-        val details = Mat()
-        Core.subtract(src, blurred, details) // Добавляем обратно усиленные детали
-        val sharpened = Mat()
-        Core.addWeighted(src, 1.0, details, alpha, 0.0, sharpened)
-        val result = Bitmap.createBitmap(bitmap.width, bitmap.height, Bitmap.Config.ARGB_8888)
-        Utils.matToBitmap(sharpened, result)
-        return result
-    }
 
-    fun cropAndResizeImage(
-        originalBitmap: Bitmap,
-        cropX: Int,
-        cropY: Int,
-        cropWidth: Int,
-        cropHeight: Int,
-        newWidth: Int,
-        newHeight: Int
-    ): Bitmap {
-        val mat = Mat()// Преобразование Bitmap -> Mat
-        Utils.bitmapToMat(originalBitmap, mat) // Обрезка изображения
-        val rect = Rect(cropX, cropY, cropWidth, cropHeight)
-        val croppedMat = Mat(mat, rect) // Изменение размера
-        val resizedMat = Mat()
-        Imgproc.resize(croppedMat, resizedMat, Size(newWidth.toDouble(), newHeight.toDouble())) // Преобразование Mat -> Bitmap
-        val resultBitmap = Bitmap.createBitmap(newWidth, newHeight, Bitmap.Config.ARGB_8888)
-        Utils.matToBitmap(resizedMat, resultBitmap)
-        return resultBitmap
-    }
+
+
 
     fun applySaturation(saturation: Float) {
         viewModelScope.launch {
-            _uiState.value = EditScreenState.Loading
             try {
                 val current = currentEditingPicture!!
-
-                val config = current.config ?: Bitmap.Config.ARGB_8888
-                val result = current.copy(config, true)
-                val mat = Mat()
-                Utils.bitmapToMat(current, mat)
-                val hsvMat = Mat()
-                Imgproc.cvtColor(mat, hsvMat, Imgproc.COLOR_BGR2HSV)
-                val channels = ArrayList<Mat>()
-                Core.split(hsvMat, channels)
-                Core.multiply(channels[1], Scalar(saturation.toDouble()), channels[1])
-                Core.merge(channels, hsvMat)
-                Imgproc.cvtColor(hsvMat, mat, Imgproc.COLOR_HSV2BGR)
-                Utils.matToBitmap(mat, result)
+                val result = saturationFilter(current, saturation)
 
                 _uiState.value = EditScreenState.Result(result)
-                val params = mapOf(Pair("saturation", saturation))
+                val params = mapOf("saturation" to saturation)
                 addToHistory(result, EffectData("Saturation", params))
             } catch (e: Exception) {
                 _uiState.value = EditScreenState.Error("Failed to apply saturation: ${e.message}")
@@ -348,29 +404,33 @@ class EditViewModel @Inject constructor(
         }
     }
 
+    private fun saturationFilter(bitmap: Bitmap, saturation: Float): Bitmap {
+        val config = bitmap.config ?: Bitmap.Config.ARGB_8888
+        val result = bitmap.copy(config, true)
+        val mat = Mat()
+        Utils.bitmapToMat(bitmap, mat)
+
+        val hsvMat = Mat()
+        Imgproc.cvtColor(mat, hsvMat, Imgproc.COLOR_BGR2HSV)
+        val channels = ArrayList<Mat>()
+        Core.split(hsvMat, channels)
+
+        Core.multiply(channels[1], Scalar(saturation.toDouble()), channels[1])
+        Core.merge(channels, hsvMat)
+        Imgproc.cvtColor(hsvMat, mat, Imgproc.COLOR_HSV2BGR)
+        Utils.matToBitmap(mat, result)
+        return result
+    }
+
+
     fun applySharpen(strength: Float = 1.0f) {
         viewModelScope.launch {
-            _uiState.value = EditScreenState.Loading
             try {
                 val current = currentEditingPicture!!
-                val sharpenValue = 5.0 + (strength / 100f) * 5.0
-
-                val config = current.config ?: Bitmap.Config.ARGB_8888
-                val result = current.copy(config, true)
-                val mat = Mat()
-                Utils.bitmapToMat(current, mat)
-
-                val kernel = Mat(3, 3, CvType.CV_32F)
-                val center = 5.0 + sharpenValue * 2.0  // base is 5.0
-                kernel.put(0, 0, 0.0, -1.0, 0.0,
-                    -1.0, center, -1.0,
-                    0.0, -1.0, 0.0)
-
-                Imgproc.filter2D(mat, mat, -1, kernel)
-                Utils.matToBitmap(mat, result)
+                val result = sharpenFilter(current, strength)
 
                 _uiState.value = EditScreenState.Result(result)
-                val params = mapOf(Pair("strength", strength))
+                val params = mapOf("strength" to strength)
                 addToHistory(result, EffectData("Sharpen", params))
             } catch (e: Exception) {
                 _uiState.value = EditScreenState.Error("Failed to apply sharpen: ${e.message}")
@@ -378,30 +438,56 @@ class EditViewModel @Inject constructor(
         }
     }
 
+    private fun sharpenFilter(bitmap: Bitmap, strength: Float): Bitmap {
+        val config = bitmap.config ?: Bitmap.Config.ARGB_8888
+        val result = bitmap.copy(config, true)
+        val mat = Mat()
+        Utils.bitmapToMat(bitmap, mat)
+
+        val sharpenValue = 5.0 + (strength / 100f) * 5.0
+        val kernel = Mat(3, 3, CvType.CV_32F)
+        val center = 5.0 + sharpenValue * 2.0
+        kernel.put(0, 0,
+            0.0, -1.0, 0.0,
+            -1.0, center, -1.0,
+            0.0, -1.0, 0.0
+        )
+
+        Imgproc.filter2D(mat, mat, -1, kernel)
+        Utils.matToBitmap(mat, result)
+        return result
+    }
+
+
     fun applyRotation(angle: Float) {
         viewModelScope.launch {
-            _uiState.value = EditScreenState.Loading
             try {
                 val current = currentEditingPicture!!
-
-                val mat = Mat()
-                Utils.bitmapToMat(current, mat)
-                val center = Point(mat.cols() / 2.0, mat.rows() / 2.0)
-                val rotationMatrix = Imgproc.getRotationMatrix2D(center, angle.toDouble(), 1.0)
-                val rotated = Mat()
-                Imgproc.warpAffine(mat, rotated, rotationMatrix, mat.size())
-                val config = current.config ?: Bitmap.Config.ARGB_8888
-                val result = Bitmap.createBitmap(rotated.cols(), rotated.rows(), config)
-                Utils.matToBitmap(rotated, result)
+                val result = rotationFilter(current, angle)
 
                 _uiState.value = EditScreenState.Result(result)
-                val params = mapOf(Pair("angle", angle))
+                val params = mapOf("angle" to angle)
                 addToHistory(result, EffectData("Rotation", params))
             } catch (e: Exception) {
                 _uiState.value = EditScreenState.Error("Failed to rotate image: ${e.message}")
             }
         }
     }
+
+    private fun rotationFilter(bitmap: Bitmap, angle: Float): Bitmap {
+        val mat = Mat()
+        Utils.bitmapToMat(bitmap, mat)
+        val center = Point(mat.cols() / 2.0, mat.rows() / 2.0)
+        val rotationMatrix = Imgproc.getRotationMatrix2D(center, angle.toDouble(), 1.0)
+        val rotated = Mat()
+
+        Imgproc.warpAffine(mat, rotated, rotationMatrix, mat.size())
+        val config = bitmap.config ?: Bitmap.Config.ARGB_8888
+        val result = Bitmap.createBitmap(rotated.cols(), rotated.rows(), config)
+        Utils.matToBitmap(rotated, result)
+        return result
+    }
+
 
     fun applyBlur(file: File) {
         Log.d("EditViewModel", "applyBlur called with file: ${file.name}, size: ${file.length()} bytes")
@@ -690,7 +776,7 @@ class EditViewModel @Inject constructor(
             _uiState.value = EditScreenState.Loading
 
             try {
-                val result = applyContrastEffectUseCase(file, contrast)
+                val result = applyContrastEffectUseCase(param = ContrastEffectParams(file, contrast))
                 result.fold(
                     onSuccess = { base64String ->
                         val bitmap = decodeBase64ToBitmap(base64String)

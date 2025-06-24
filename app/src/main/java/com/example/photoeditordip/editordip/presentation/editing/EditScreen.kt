@@ -46,6 +46,7 @@ import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.photoeditordip.R
 import com.example.photoeditordip.core.data.dto.bitmapToFile
+import com.example.photoeditordip.editordip.presentation.editing.PresetHolderViewModel
 import com.example.photoeditordip.editordip.presentation.editing.components.QuarterCircleButton
 import com.example.photoeditordip.navigation.Screen
 import com.example.photoeditordip.utils.createTempFile
@@ -78,7 +79,7 @@ sealed class DrawShape {
     data class Circle(val center: Offset, val radius: Float) : DrawShape()
 }
 
-enum class DrawMode { LINE, RECTANGLE, CIRCLE }
+enum class DrawMode { LINE, RECTANGLE, CIRCLE , NONE}
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -86,15 +87,51 @@ enum class DrawMode { LINE, RECTANGLE, CIRCLE }
 fun EditScreen(
     navController: NavController,
     imageUri: Uri?,
-    viewModel: EditViewModel = hiltViewModel()
+    sharedViewModel: PresetHolderViewModel = hiltViewModel(
+        navController.getBackStackEntry(Screen.Home.route)
+    )
 ) {
+    val parentEntry = remember { navController.getBackStackEntry(Screen.Home.route) }
+    val viewModel: EditViewModel = hiltViewModel(parentEntry)
+    val preset = sharedViewModel.selectedPreset.collectAsState().value
+
     val context = LocalContext.current
     var displayBitmap by remember { mutableStateOf<Bitmap?>(null) }
     val uiState by viewModel.uiState.collectAsState()
-
+    var originalBitmap by remember { mutableStateOf<Bitmap?>(null) }
+    var selectedFilter by remember { mutableStateOf<Effect?>(null) }
     // Initialize OpenCV
     LaunchedEffect(Unit) {
         OpenCVLoader.initDebug()
+    }
+// Load image
+    LaunchedEffect(imageUri) {
+        imageUri?.let {
+            try {
+                withContext(Dispatchers.IO) {
+                    val inputStream = context.contentResolver.openInputStream(it)
+                    val bitmap = BitmapFactory.decodeStream(inputStream)
+                    inputStream?.close()
+                    originalBitmap = bitmap
+                    bitmap?.let { safeBitmap ->
+                        val editableBitmap = safeBitmap.copy(
+                            safeBitmap.config ?: Bitmap.Config.ARGB_8888,
+                            true
+                        )
+                        displayBitmap = editableBitmap
+                        viewModel.updateExternalBitmap(editableBitmap)
+                        // ✅ Добавляем в историю при первом показе
+                        viewModel.addToHistory(editableBitmap)
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+
+        preset?.let {
+            viewModel.applyPreset(it) // применяем эффекты к фото
+        }
     }
 
     // Handle UI state changes
@@ -115,8 +152,7 @@ fun EditScreen(
     }
 
     // States to store images
-    var originalBitmap by remember { mutableStateOf<Bitmap?>(null) }
-    var selectedFilter by remember { mutableStateOf<Effect?>(null) }
+
 
     // States for sliders
     var showSliderById by remember { mutableStateOf(SHOW_NONE) }
@@ -133,35 +169,11 @@ fun EditScreen(
 
 
     // States for drawing
-    var drawMode by remember { mutableStateOf<DrawMode?>(null) }
+    var drawMode by remember { mutableStateOf<DrawMode>(DrawMode.NONE) }
     var shapes by remember { mutableStateOf<List<DrawShape>>(emptyList()) }
     var currentLine by remember { mutableStateOf<List<Offset>>(emptyList()) }
     var drawnLines by remember { mutableStateOf<List<List<Offset>>>(emptyList()) }
 
-    // Load image
-    LaunchedEffect(imageUri) {
-        imageUri?.let {
-            try {
-                withContext(Dispatchers.IO) {
-                    val inputStream = context.contentResolver.openInputStream(it)
-                    val bitmap = BitmapFactory.decodeStream(inputStream)
-                    inputStream?.close()
-                    originalBitmap = bitmap
-                    bitmap?.let { safeBitmap ->
-                        val editableBitmap = safeBitmap.copy(
-                            safeBitmap.config ?: Bitmap.Config.ARGB_8888,
-                            true
-                        )
-                        displayBitmap = editableBitmap
-                        // ✅ Добавляем в историю при первом показе
-                        viewModel.addToHistory(editableBitmap)
-                    }
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
-    }
 
 
 
@@ -199,16 +211,16 @@ fun EditScreen(
             }
 
         ),
-        Effect(Icons.Filled.Draw, "Draw", onClick = {
-            drawMode = DrawMode.LINE
-            showSliderById = SHOW_DRAW_PANEL
-            displayBitmap?.let { viewModel.updateExternalBitmap(it) }
-        },
-            onClickOK = {
-                
-            }
-
-        ),
+//        Effect(Icons.Filled.Draw, "Draw", onClick = {
+//            drawMode = DrawMode.LINE
+//            showSliderById = SHOW_DRAW_PANEL
+//            displayBitmap?.let { viewModel.updateExternalBitmap(it) }
+//        },
+//            onClickOK = {
+//
+//            }
+//
+//        ),
         Effect(Icons.Filled.InvertColors, "Sepia", onClick = {
             showSliderById = SHOW_STANDART_SLIDER
             sliderValue = 51f
@@ -706,13 +718,13 @@ fun EditScreen(
                                         draggingCorner = CornerType.BOTTOM_RIGHT
                                     }
                                 }
-                                if (drawMode != null) {
+                                if (drawMode != DrawMode.NONE) {
                                     currentLine = mutableListOf(offset)
                                 }
                             },
                             onDragEnd = {
                                 if (rectShow) draggingCorner = null
-                                if (drawMode != null) {
+                                if (drawMode != DrawMode.NONE) {
                                     // например, сохранить фигуру
                                     shapes += DrawShape.Line(currentLine)
                                     currentLine = emptyList()
@@ -746,7 +758,7 @@ fun EditScreen(
                                     }
                                 }
 
-                                if (drawMode != null) {
+                                if (drawMode != DrawMode.NONE) {
                                     val newPos = change.position
                                     currentLine += newPos
                                 }
@@ -780,7 +792,7 @@ fun EditScreen(
                         drawCircle(Color.Green, 10f, center = bottomRight)
                     }
 
-                    if (drawMode != null) {
+                    if (drawMode != DrawMode.NONE) {
                         // ✍️ Нарисованные линии
                         drawnLines.forEach { line ->
                             line.zipWithNext { start, end ->
@@ -815,7 +827,10 @@ fun EditScreen(
                     QuarterCircleButton(
                         icon = Icons.Default.ArrowBack,
                         contentDescription = "Back",
-                        onClick = { navController.popBackStack() },
+                        onClick = {
+                            viewModel.clearFullHistory()
+                            navController.popBackStack()
+                        },
                         topLeft = true
                     )
 
@@ -837,6 +852,7 @@ fun EditScreen(
                         icon = Icons.Default.Done,
                         contentDescription = "Save",
                         onClick = {
+                            viewModel.updateExternalBitmap(displayBitmap!!)
                             displayBitmap?.let { bitmap ->
                                 val savedUri = saveBitmapToGallery(context, bitmap)
                                 savedUri?.let { uri ->
@@ -865,7 +881,7 @@ fun EditScreen(
                 selectedImageIndex = selectedIndex.value,
                 onAddImageClick = { imagePickerLauncher.launch("image/*") },
                 onImageSelect = { index -> selectedIndex.value = index },
-                drawShape = drawMode!!,
+                drawShape = drawMode,
                 onDrawShapeSelected = { drawMode = it }
             )
 

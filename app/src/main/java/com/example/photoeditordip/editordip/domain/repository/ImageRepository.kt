@@ -1,6 +1,32 @@
 package com.example.photoeditordip.editordip.domain.repository
 
+import com.example.photoeditordip.data.repository.ImageRepositoryImpl
+import com.example.photoeditordip.data.repository.ImageRepositoryImpl_Factory
 import java.io.File
+
+//interface Effect<T>{
+//    suspend fun applyEffect(imageFile: File): Result<File>
+//}
+//
+//class ApplyBlurEffect(private val param: Double) : Effect<Double> {
+//    override suspend fun applyEffect(imageFile: File): Result<File> {
+//        return imageFile.applyBlur(imageFile, param);
+//    }
+//}
+//
+//class ApplyStyleTransferEffect : Effect<Pair<File, File>> {
+//
+//    var effects = mutableListOf<Effect<*>>()
+//
+//    override suspend fun applyEffect(imageFile: File, param: Pair<File, File>): Result<File> {
+//          effects.add(ApplyBlurEffect(100.0))
+//          effects.add(ApplyBlurEffect(720, 960))
+//          effects.add(ApplyBlurEffect())
+//
+//        effects.forEach { it.applyEffect(imageFile) }
+//
+//    }
+//}
 
 interface ImageRepository {
     suspend fun applyBlurEffect(imageFile: File): Result<String>

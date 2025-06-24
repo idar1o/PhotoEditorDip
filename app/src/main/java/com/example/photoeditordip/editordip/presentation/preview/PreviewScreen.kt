@@ -6,6 +6,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -20,12 +21,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -40,22 +45,28 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.photoeditordip.navigation.Screen
+import com.example.photoeditordip.presentation.editing.EditViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
-
 @Composable
 fun PreviewScreen(
     navController: NavController,
     imageUri: Uri?,
 ) {
+    val parentEntry = remember { navController.getBackStackEntry(Screen.Home.route) }
+    val viewModel: EditViewModel = hiltViewModel(parentEntry)
     val context = LocalContext.current
+    var showDialog by remember { mutableStateOf(false) }
+    var presetName by remember { mutableStateOf("") }
 
+    // Основной UI
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -88,13 +99,14 @@ fun PreviewScreen(
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             Button(onClick = {
+                viewModel.clearFullHistory()
                 navController.navigate(Screen.Home.route) {
                     popUpTo(Screen.Preview.route) { inclusive = true }
                 }
             }) {
-                Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                Icon(Icons.Default.ArrowBack, contentDescription = "Home")
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Назад")
+                Text("Home")
             }
 
             Button(onClick = {
@@ -102,27 +114,57 @@ fun PreviewScreen(
             }) {
                 Icon(Icons.Default.Share, contentDescription = "Share")
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Поделиться")
+                Text("Share")
+            }
+
+            Button(onClick = {
+                showDialog = true // Показываем диалог
+            }) {
+                Icon(Icons.Default.Save, contentDescription = "SavePreset")
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Save Preset")
             }
         }
     }
-}
 
-
-fun saveBitmapToCacheAndGetUri(context: Context, bitmap: Bitmap): Uri? {
-    return try {
-        val cachePath = File(context.cacheDir, "images")
-        cachePath.mkdirs()
-        val file = File(cachePath, "shared_image.png")
-        FileOutputStream(file).use { stream ->
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
-        }
-        FileProvider.getUriForFile(context, "${context.packageName}.provider", file)
-    } catch (e: IOException) {
-        e.printStackTrace()
-        null
+    // Диалог для ввода имени пресета
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = { showDialog = false },
+            title = { Text("Save Preset") },
+            text = {
+                OutlinedTextField(
+                    value = presetName,
+                    onValueChange = { presetName = it },
+                    label = { Text("Preset Name") },
+                    singleLine = true
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    if (presetName.isNotBlank()) {
+                        imageUri?.let { viewModel.savePreset(presetName.trim(), it) }
+                        presetName = ""
+                        showDialog = false
+                    }else{
+                        Toast.makeText(context, "Write Name", Toast.LENGTH_SHORT).show()
+                    }
+                }) {
+                    Text("OK")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    showDialog = false
+                }) {
+                    Text("Cancel")
+                }
+            }
+        )
     }
 }
+
+
 
 fun shareImage(context: Context, imageUri: Uri) {
     val intent = Intent(Intent.ACTION_SEND).apply {

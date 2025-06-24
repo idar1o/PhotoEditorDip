@@ -6,14 +6,14 @@ import android.content.SharedPreferences
 import com.example.photoeditordip.core.data.network.ApiConstants
 import com.example.photoeditordip.data.api.ApiService
 import com.example.photoeditordip.data.repository.ImageRepositoryImpl
-import com.example.photoeditordip.domain.usecase.ApplyBlurUseCase
+import com.example.photoeditordip.editordip.domain.usecases.ai_effects.ApplyBlurUseCase
 import com.example.photoeditordip.editordip.data.repository.PresetRepositoryImpl
 import com.example.photoeditordip.editordip.data.repository.SharedPrefsPresetStorage
 import com.example.photoeditordip.editordip.domain.repository.ImageRepository
 import com.example.photoeditordip.editordip.domain.repository.PresetRepository
 import com.example.photoeditordip.editordip.domain.repository.PresetStorage
-import com.example.photoeditordip.editordip.domain.usecases.ApplyBlurBackgroundUseCase
-import com.example.photoeditordip.editordip.domain.usecases.ApplyStyleTransferUseCase
+import com.example.photoeditordip.editordip.domain.usecases.ai_effects.ApplyBlurBackgroundUseCase
+import com.example.photoeditordip.editordip.domain.usecases.ai_effects.ApplyStyleTransferUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

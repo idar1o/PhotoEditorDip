@@ -7,21 +7,41 @@ import android.graphics.Bitmap
 import android.provider.MediaStore
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.photoeditordip.editordip.domain.models.Preset
+import com.example.photoeditordip.editordip.domain.usecases.presets.GetAllPresetsUseCase
 import com.example.photoeditordip.presentation.editing.EditScreenState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeScreenViewModel @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val getAllPresetsUseCase: GetAllPresetsUseCase
 ) : ViewModel() {
     private val _uiState = MutableStateFlow<HomeScreenState>(HomeScreenState.Idle)
     val uiState = _uiState.asStateFlow()
+    private val _presets = MutableStateFlow<List<Preset>>(emptyList())
+    val presets: StateFlow<List<Preset>> = _presets.asStateFlow()
+
+    fun loadPresets() {
+        viewModelScope.launch(Dispatchers.IO) {
+            getAllPresetsUseCase().fold(
+                onSuccess = { presets ->
+                    _presets.value = presets
+                },
+                onFailure = { error ->
+                    error.printStackTrace()
+                }
+            )
+        }
+    }
+
 
     fun loadUserImages() {
         viewModelScope.launch(Dispatchers.IO) {

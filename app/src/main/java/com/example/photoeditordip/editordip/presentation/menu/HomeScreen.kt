@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -31,16 +32,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.photoeditordip.editordip.presentation.components.ImagePickerButton
+import com.example.photoeditordip.editordip.presentation.editing.PresetHolderViewModel
 import com.example.photoeditordip.editordip.presentation.menu.HomeScreenState
 import com.example.photoeditordip.editordip.presentation.menu.HomeScreenViewModel
 import com.example.photoeditordip.navigation.Screen
@@ -48,12 +52,24 @@ import com.example.photoeditordip.navigation.Screen
 @Composable
 fun HomeScreen(
     navController: NavController,
-    viewModel: HomeScreenViewModel = hiltViewModel()
+    viewModel: HomeScreenViewModel = hiltViewModel(),
+    holderViewModel: PresetHolderViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
-
+    val presets by viewModel.presets.collectAsState()
+    val context = LocalContext.current
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia(), // либо custom для камеры
+        onResult = { imageUri ->
+            imageUri?.let {
+                val encodedUri = Uri.encode(it.toString())
+                navController.navigate(Screen.EditParam(encodedUri).route)
+            }
+        }
+    )
     LaunchedEffect(Unit) {
         viewModel.loadUserImages()
+        viewModel.loadPresets()
     }
 
     Column(
@@ -127,12 +143,11 @@ fun HomeScreen(
                         style = MaterialTheme.typography.titleMedium,
                         modifier = Modifier.padding(bottom = 8.dp)
                     )
-
                     LazyVerticalGrid(
                         columns = GridCells.Fixed(3),
                         contentPadding = PaddingValues(4.dp),
                         modifier = Modifier.height(250.dp)
-                    )  {
+                    ) {
                         items(state.userImages) { bitmap ->
                             Image(
                                 painter = rememberAsyncImagePainter(bitmap),
@@ -143,7 +158,7 @@ fun HomeScreen(
                                     .height(120.dp)
                                     .padding(4.dp)
                                     .clip(RoundedCornerShape(12.dp))
-                                    .clickable{
+                                    .clickable {
                                         val encodedUri = Uri.encode(bitmap.toString())
                                         navController.navigate(Screen.EditParam(imageUri = encodedUri).route)
                                     }
@@ -152,16 +167,45 @@ fun HomeScreen(
                     }
                 }
             }
-
             is HomeScreenState.Loading -> {
                 Text("Loading...", style = MaterialTheme.typography.bodyMedium)
             }
-
             is HomeScreenState.Error -> {
                 Text("Ошибка: ${state.message}", color = Color.Red)
             }
-
             else -> Unit
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // 🔥 Новый раздел "Presets"
+        if (presets.isNotEmpty()) {
+            Text(
+                text = "Presets",
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+            LazyRow(
+                contentPadding = PaddingValues(horizontal = 4.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(presets) { preset ->
+                    val uri = remember(preset.imageUri) { Uri.parse(preset.imageUri) }
+                    Image(
+                        painter = rememberAsyncImagePainter(uri),
+                        contentDescription = preset.name,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .size(120.dp)
+                            .clip(RoundedCornerShape(12.dp))
+                            .clickable {
+                                holderViewModel.setSelectedPreset(preset) // сохранить выбранный пресет
+                                launcher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+
+                            }
+                    )
+                }
+            }
         }
     }
 }
